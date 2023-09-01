@@ -11,29 +11,29 @@ USER_RIGHTS = (('Coffee', 'Access Coffee'),
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, email, password, **extra_fields):
+    def _create_user(self, user_name, password, **extra_fields):
         """
         Creates and saves a User with the given email and password.
         """
-        if not email:
-            raise ValueError('The given email must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        if not user_name:
+            raise ValueError('The given user_name must be set')
+
+        user = self.model(user_name=user_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
+    def create_user(self, user_name, password=None, **extra_fields):
+        extra_fields.setdefault('is_admin', False)
+        return self._create_user(user_name, password, **extra_fields)
 
-    def create_superuser(self, email, password, **extra_fields):
-        extra_fields.setdefault('is_superuser', True)
+    def create_superuser(self, user_name, password, **extra_fields):
+        extra_fields.setdefault('is_admin', True)
 
-        if extra_fields.get('is_superuser') is not True:
+        if extra_fields.get('is_admin') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(user_name, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -47,18 +47,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'user_name'
     REQUIRED_FIELDS = []
 
-    class Meta:
-        verbose_name = 'user'
-        verbose_name_plural = 'users'
-
     def __str__(self):
         return self.user_name
 
+    @property
+    def is_staff(self):
+        return self.is_superuser
+
 
 class Log(models.Model):
-    person = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)_logs")
+    person = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_logs")
     time = models.DateTimeField()
-    logger = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)_submitted_logs")
+    logger = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_submitted_logs")
 
     class Meta:
         abstract = True

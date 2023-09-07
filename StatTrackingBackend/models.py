@@ -38,9 +38,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     user_name = models.CharField(max_length=30, unique=True)
-    # password = models.CharField(max_length=50)
     # token = models.CharField(max_length=20)
-    rights = MultiSelectField(choices=USER_RIGHTS, max_length=50)
 
     objects = UserManager()
 
@@ -56,12 +54,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Log(models.Model):
-    person = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_logs")
-    time = models.DateTimeField()
     logger = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_submitted_logs")
+    time = models.DateTimeField()
+    person = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_logs")
 
     class Meta:
         abstract = True
+        default_permissions = ("access", )
 
 
 class Coffee(Log):

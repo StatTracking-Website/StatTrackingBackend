@@ -1,9 +1,10 @@
 # ViewSets define the view behavior.
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from rest_framework import viewsets, serializers
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet
 
-from StatTrackingBackend.models import User, Coffee, TooLate
+from StatTrackingBackend.models import User, Coffee, TooLate, Horny
 
 
 # GenericViewSet,  # generic view functionality
@@ -15,7 +16,7 @@ from StatTrackingBackend.models import User, Coffee, TooLate
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ['user_name', 'rights']
+        fields = ['user_name']
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -23,7 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-log_fields = ['person__user_name', 'time', 'logger__user_name']
+log_fields = ['logger', 'time', 'person']
 
 
 class CoffeeSerializer(serializers.HyperlinkedModelSerializer):
@@ -32,28 +33,34 @@ class CoffeeSerializer(serializers.HyperlinkedModelSerializer):
         fields = log_fields + ['coffee_size', 'coffee_type', 'coffee_source']
 
 
-class CoffeeViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, ListModelMixin):
+class CoffeeViewSet(GenericViewSet, LoginRequiredMixin, PermissionRequiredMixin,
+                   CreateModelMixin, RetrieveModelMixin, ListModelMixin):
+    permission_required = "StatTrackingBackend.access_coffee"
     serializer_class = CoffeeSerializer
     queryset = Coffee.objects.all()
 
 
 class TooLateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Coffee
+        model = TooLate
         fields = log_fields + ['duration', 'event', 'excuse']
 
 
-class TooLateViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, ListModelMixin):
+class TooLateViewSet(GenericViewSet, LoginRequiredMixin, PermissionRequiredMixin,
+                   CreateModelMixin, RetrieveModelMixin, ListModelMixin):
+    permission_required = "StatTrackingBackend.access_too_late"
     serializer_class = TooLateSerializer
     queryset = TooLate.objects.all()
 
 
 class HornySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Coffee
+        model = Horny
         fields = log_fields + ['assault_target', 'assault_type', 'assault_detail', 'assault_intensity']
 
 
-class HornyViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, ListModelMixin):
-    serializer_class = TooLateSerializer
-    queryset = TooLate.objects.all()
+class HornyViewSet(GenericViewSet, LoginRequiredMixin, PermissionRequiredMixin,
+                   CreateModelMixin, RetrieveModelMixin, ListModelMixin):
+    permission_required = "StatTrackingBackend.access_horny"
+    serializer_class = HornySerializer
+    queryset = Horny.objects.all()

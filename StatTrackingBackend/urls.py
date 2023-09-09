@@ -16,18 +16,33 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
 from rest_framework import routers
+from rest_framework.schemas import get_schema_view
 
-from StatTrackingBackend.views import UserViewSet, CoffeeViewSet, TooLateViewSet, HornyViewSet
+from StatTrackingBackend.views.log_views import CoffeeViewSet, TooLateViewSet, HornyViewSet
+from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, LoginView, LogoutView
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register('users', UserViewSet)
-router.register('coffee', CoffeeViewSet)
-router.register('too_late', TooLateViewSet)
-router.register('horny', HornyViewSet)
+router.register('Users', UserViewSet)
+router.register('Coffee', CoffeeViewSet)
+router.register('TooLate', TooLateViewSet)
+router.register('Horny', HornyViewSet)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),#
+    path('admin/', admin.site.urls),
+    path('schema/', get_schema_view(
+        title='Stat Tracking Backend',
+        description='''An API to access all data tracked by the stat tracking system'''
+    ), name='openapi-schema'),
+    path('docs/', TemplateView.as_view(
+        template_name='redoc.html',
+        extra_context={'schema_url': 'openapi-schema'}
+    ), name='redoc-ui'),
+
+    path('Users/SetPassword/', SetPasswordView.as_view(), name="SetPassword"),
+    path('Users/Login/', LoginView.as_view(), name="Login"),
+    path('Users/Logout/', LogoutView.as_view(), name="Logout"),
     path('', include(router.urls)),
 ]

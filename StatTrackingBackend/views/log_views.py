@@ -1,28 +1,14 @@
-# ViewSets define the view behavior.
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from rest_framework import viewsets, serializers
+from rest_framework import serializers
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet
-
-from StatTrackingBackend.models import User, Coffee, TooLate, Horny
-
+from StatTrackingBackend.models import Coffee, TooLate, Horny
 
 # GenericViewSet,  # generic view functionality
 # CreateModelMixin,  # handles POSTs
 # RetrieveModelMixin,  # handles GETs for 1 Company
 # UpdateModelMixin,  # handles PUTs and PATCHes
 # ListModelMixin # handles GETs for many Companies
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['user_name']
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
 
 log_fields = ['logger', 'time', 'person']
 

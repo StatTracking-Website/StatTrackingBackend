@@ -22,13 +22,14 @@ from rest_framework.schemas import get_schema_view
 
 from StatTrackingBackend.views.log_views import CoffeeViewSet, TooLateViewSet, HornyViewSet
 from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, LoginView, LogoutView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register('Users', UserViewSet)
-router.register('Coffee', CoffeeViewSet)
-router.register('TooLate', TooLateViewSet)
-router.register('Horny', HornyViewSet)
+router.register('users', UserViewSet)
+router.register('coffee', CoffeeViewSet)
+router.register('too_late', TooLateViewSet)
+router.register('horny', HornyViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,8 +42,8 @@ urlpatterns = [
         extra_context={'schema_url': 'openapi-schema'}
     ), name='redoc-ui'),
 
-    path('Users/SetPassword/', SetPasswordView.as_view(), name="SetPassword"),
-    path('Users/Login/', LoginView.as_view(), name="Login"),
-    path('Users/Logout/', LogoutView.as_view(), name="Logout"),
+    path('users/SetPassword/', SetPasswordView.as_view(), name="set_password"),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),
 ]

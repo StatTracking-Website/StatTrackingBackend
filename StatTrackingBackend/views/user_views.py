@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from StatTrackingBackend.models import User
+from StatTrackingBackend.utility import SchwurbelSchema
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -28,28 +29,8 @@ class PasswordSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=50)
 
 
-class SchwurbelSchema(AutoSchema):
-
-    def __init__(self, name: str, serializer: Type[Serializer] = None):
-        self.overwritten_serializer = serializer
-        AutoSchema.__init__(self, operation_id_base=name)
-
-    def get_request_serializer(self, path, method):
-        if self.overwritten_serializer: return self.overwritten_serializer()
-        else: return AutoSchema.get_request_serializer(self, path, method)
-
-    method_mapping = {
-        'get': '',
-        'post': '',
-        'put': '',
-        'patch': '',
-        'delete': '',
-    }
-
-
 class SetPasswordView(APIView):
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
     schema = SchwurbelSchema(name='updatePassword', serializer=PasswordSerializer)
 
     def put(self, request):
@@ -61,6 +42,27 @@ class SetPasswordView(APIView):
         user.set_password(serializer.validated_data['password'])
         user.save()
         return Response({'status': 'password set'})
+
+
+class RegisterUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_name', 'password']
+
+
+class RegisterUserView(APIView):
+    queryset = User.objects.all()
+    throttle_scope = 'register_user'
+    permission_classes = []
+    schema = SchwurbelSchema(name='registerUser', serializer=RegisterUserSerializer)
+
+    def put(self, request):
+        serializer = RegisterUserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        User.objects.create_user(serializer.validated_data["user_name"], serializer.validated_data["password"])
+        return Response({'status': 'user created'})
 
 
 class LoginSerializer(serializers.Serializer):

@@ -21,7 +21,7 @@ from rest_framework import routers
 from rest_framework.schemas import get_schema_view
 
 from StatTrackingBackend.views.log_views import CoffeeViewSet, TooLateViewSet, HornyViewSet
-from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, LoginView, LogoutView
+from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, LoginView, LogoutView, RegisterUserView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -42,7 +42,8 @@ urlpatterns = [
         extra_context={'schema_url': 'openapi-schema'}
     ), name='redoc-ui'),
 
-    path('users/SetPassword/', SetPasswordView.as_view(), name="set_password"),
+    path('users/setPassword/', SetPasswordView.as_view(), name="set_password"),
+    path('users/registerUser', RegisterUserView.as_view(), name="register_user"),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),

@@ -1,11 +1,18 @@
+import uuid
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from multiselectfield import MultiSelectField
 
-USER_RIGHTS = (('Coffee', 'Access Coffee'),
-               ('TooLate', 'Access Too Late'),
-               ('Horny', 'Access Horny'))
+PUBLIC_ACCESS = (('Coffee', 'Access Coffee'),
+                 ('TooLate', 'Access Too Late'))
+PUBLIC_ACCESS_VALUES = ",".join([i[0] for i in PUBLIC_ACCESS])
+
+HIDDEN_ACCESS = (('Horny', 'Access Horny'),)
+HIDDEN_ACCESS_VALUES = ",".join([i[0] for i in HIDDEN_ACCESS])
+
+ACCESS = PUBLIC_ACCESS + HIDDEN_ACCESS
+ACCESS_VALUES = ",".join([i[0] for i in ACCESS])
 
 
 class UserManager(BaseUserManager):
@@ -37,8 +44,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    uuid = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     user_name = models.CharField(max_length=30, unique=True)
-    # token = models.CharField(max_length=20)
+    access = MultiSelectField(choices=ACCESS, max_length=256, default=PUBLIC_ACCESS_VALUES, blank=True)
 
     objects = UserManager()
 
@@ -51,32 +59,3 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_superuser
-
-
-class Log(models.Model):
-    logger = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_submitted_logs")
-    time = models.DateTimeField()
-    person = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(class)s_logs")
-
-    class Meta:
-        abstract = True
-        default_permissions = ("access", )
-
-
-class Coffee(Log):
-    coffee_size = models.FloatField()
-    coffee_type = models.CharField(max_length=50)
-    coffee_source = models.CharField(max_length=50)
-
-
-class TooLate(Log):
-    duration = models.IntegerField()
-    event = models.CharField(max_length=50)
-    excuse = models.CharField(max_length=200)
-
-
-class Horny(Log):
-    assault_target = models.CharField(max_length=50)
-    assault_type = models.CharField(max_length=50)
-    assault_detail = models.CharField(max_length=200)
-    assault_intensity = models.SmallIntegerField()

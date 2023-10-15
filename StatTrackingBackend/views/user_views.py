@@ -1,97 +1,62 @@
-from typing import Type
-
-from django.contrib.auth import authenticate, login, logout
-from rest_framework import serializers, status
+from rest_framework import serializers, status, permissions
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.schemas.openapi import AutoSchema
-from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from StatTrackingBackend.models import User
-from StatTrackingBackend.utility import SchwurbelSchema
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['user_name']
+from StatTrackingBackend.models.user_models import User
+from StatTrackingBackend.serializer.user_serializer import UserSerializer, RegisterUserSerializer, \
+    UpdatePasswordSerializer
+from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView
 
 
 class UserViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
 
-class PasswordSerializer(serializers.Serializer):
-    password = serializers.CharField(max_length=50)
-
-
 class SetPasswordView(APIView):
-    queryset = User.objects.all()
-    schema = SchwurbelSchema(name='updatePassword', serializer=PasswordSerializer)
+    permission_classes = [IsAuthenticated]
+    schema = SchwurbelSchema(name='updatePassword', serializer=UpdatePasswordSerializer)
 
     def put(self, request):
         user = request.user
-        serializer = PasswordSerializer(data=request.data)
+        serializer = UpdatePasswordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        user.set_password(serializer.validated_data['password'])
+        if not user.check_password(serializer.validated_data['old_password']):
+            return Response({"detail": "Old Password not Valid!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(serializer.validated_data['new_password'])
         user.save()
-        return Response({'status': 'password set'})
+        return Response({'detail': 'password set'})
 
 
-class RegisterUserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['user_name', 'password']
-
-
-class RegisterUserView(APIView):
-    queryset = User.objects.all()
+class RegisterUserView(LateThrottleAPIView):
     throttle_scope = 'register_user'
-    permission_classes = []
+    permission_classes = [AllowAny]
     schema = SchwurbelSchema(name='registerUser', serializer=RegisterUserSerializer)
 
-    def put(self, request):
+    def post(self, request):
         serializer = RegisterUserSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        self.check_throttles(request)
         User.objects.create_user(serializer.validated_data["user_name"], serializer.validated_data["password"])
-        return Response({'status': 'user created'})
+        return Response({'detail': 'user created'})
 
 
-class LoginSerializer(serializers.Serializer):
-    user_name = serializers.CharField(max_length=30)
-    password = serializers.CharField(max_length=50)
-
-
-class LoginView(APIView):
-    queryset = User.objects.all()
-    schema = SchwurbelSchema(name='login', serializer=LoginSerializer)
-    permission_classes = []
+class VerifyTokenView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        user = authenticate(request, username=serializer.validated_data["user_name"], password=serializer.validated_data["password"])
-        if user is None:
-            return Response({'status': status.HTTP_400_BAD_REQUEST})
-
-        login(request, user)
-        return Response({'status': 'logged in'})
-
-
-class LogoutView(APIView):
-    permission_classes = []
-    schema = SchwurbelSchema(name='logout')
-
-    def post(self, request):
-        logout(request)
-        return Response({'status': 'logged out'})
+        return Response(
+            {
+                'status': 'token is working',
+                'user_name': request.user.user_name,
+                'access': request.user.access,
+            })

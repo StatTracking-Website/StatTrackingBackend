@@ -1,10 +1,22 @@
 from django.contrib import admin
 
-from StatTrackingBackend.models import Coffee, TooLate, Horny, User
+from StatTrackingBackend.models.friendship_models import Friendship, FriendshipRequest
+from StatTrackingBackend.models.log_models import Coffee, TooLate, Horny
+from StatTrackingBackend.models.user_models import User
 
 
 @admin.register(User)
-class CoffeeAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Friendship)
+class FriendshipAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(FriendshipRequest)
+class FriendshipRequestAdmin(admin.ModelAdmin):
     pass
 
 

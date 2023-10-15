@@ -1,7 +1,46 @@
 from typing import Type
 
+from rest_framework import serializers, validators
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework.serializers import Serializer
+from rest_framework.views import APIView
+
+
+class SussySerializerBypass(serializers.ModelSerializer):
+    def __init__(self, instance=None, data=..., **kwargs):
+        super().__init__(instance, data, **kwargs)
+        # Horrible hack - In order to reuse all other validation logic in the model field, we need to
+        # remove the Uniqueness validation.
+        for field in self.fields.values():
+            new_validators = filter(
+                lambda validator: not isinstance(validator, (validators.UniqueValidator, validators.UniqueTogetherValidator)),
+                field.validators
+            )
+            field.validators = new_validators
+
+
+class LateThrottleAPIView(APIView):
+    class Meta:
+        abstract = True
+
+    def initial(self, request, *args, **kwargs):
+        """
+        Runs anything that needs to occur prior to calling the method handler.
+        """
+        self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        # Perform content negotiation and store the accepted info on the request
+        neg = self.perform_content_negotiation(request)
+        request.accepted_renderer, request.accepted_media_type = neg
+
+        # Determine the API version, if versioning is in use.
+        version, scheme = self.determine_version(request, *args, **kwargs)
+        request.version, request.versioning_scheme = version, scheme
+
+        # Ensure that the incoming request is permitted
+        self.perform_authentication(request)
+        self.check_permissions(request)
+        # self.check_throttles(request)
 
 
 class SchwurbelSchema(AutoSchema):

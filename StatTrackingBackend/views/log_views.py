@@ -1,11 +1,13 @@
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 
 from StatTrackingBackend.filters import IsFriendFilter, LogTimeFilter, LogTimeWindowFilter, LogUserFilter
-from StatTrackingBackend.models.log_models import Coffee, TooLate, Horny
+from StatTrackingBackend.models.log_models import Caffeine, TooLate, Horny, CaffeineType, CaffeineCategory, \
+    CaffeineCommonServing
 from StatTrackingBackend.permissions import IsFriendOrReadonly, IsCorrectLoggerOrReadonly, HasAccessRights
-from StatTrackingBackend.serializer.log_serializer import HornySerializer, TooLateSerializer, CoffeeSerializer
+from StatTrackingBackend.serializer.log_serializer import HornySerializer, TooLateSerializer, CaffeineSerializer, \
+    CaffeineTypeSerializer, BundledCaffeineSortSerializer
 
 
 class LogViewSet(GenericAPIView, ListModelMixin, CreateModelMixin):
@@ -13,12 +15,22 @@ class LogViewSet(GenericAPIView, ListModelMixin, CreateModelMixin):
     def post(self, request, *args, **kwargs): return self.create(request, *args, **kwargs)
 
 
-class CoffeeViewSet(LogViewSet):
-    serializer_class = CoffeeSerializer
-    queryset = Coffee.objects.all()
+class CaffeineTypeViewSet(RetrieveAPIView):
+    serializer_class = BundledCaffeineSortSerializer
+
+    def get_object(self): return {
+        "categories": CaffeineCategory.objects.all(),
+        "types": CaffeineType.objects.all(),
+        "common_serving": CaffeineCommonServing.objects.all()
+    }
+
+
+class CaffeineViewSet(LogViewSet):
+    serializer_class = CaffeineSerializer
+    queryset = Caffeine.objects.all()
     permission_classes = [IsAuthenticated, HasAccessRights, IsCorrectLoggerOrReadonly, IsFriendOrReadonly]
     filter_backends = [IsFriendFilter, LogTimeFilter, LogTimeWindowFilter, LogUserFilter]
-    access = 'Coffee'
+    access = 'Caffeine'
 
 
 class TooLateViewSet(LogViewSet):

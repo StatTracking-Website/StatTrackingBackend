@@ -32,3 +32,15 @@ class FriendshipToSerializer(serializers.Serializer):
 class FriendshipSettingsSerializer(serializers.Serializer):
     user_to = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
     access = serializers.MultipleChoiceField(choices=ACCESS)
+
+
+class ReverseFriendshipSettingsSerializer(serializers.Serializer):
+    user_from = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    access = serializers.MultipleChoiceField(choices=ACCESS)
+
+
+class BundledFriendshipSerializer(serializers.Serializer):
+    friends = FriendshipSettingsSerializer(many=True)
+    friends_access = ReverseFriendshipSettingsSerializer(many=True)
+    requests_incoming = FriendshipRequestSerializer(many=True)
+    requests_outgoing = FriendshipRequestSerializer(many=True)

@@ -30,7 +30,7 @@ class FriendshipManager(models.Manager):
 
 class Friendship(models.Model):
     user_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends')
-    user_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='_unused_friend_relation')
+    user_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends_reversed')
     access = MultiSelectField(choices=ACCESS, max_length=256, blank=True)
 
     objects = FriendshipManager()

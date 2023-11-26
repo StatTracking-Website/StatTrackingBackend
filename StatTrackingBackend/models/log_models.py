@@ -12,13 +12,41 @@ class Log(models.Model):
         abstract = True
 
 
-class Coffee(Log):
-    coffee_size = models.FloatField()
-    coffee_type = models.CharField(max_length=50)
-    coffee_source = models.CharField(max_length=50)
+class CaffeineCategory(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    image = models.ImageField(blank=True, null=True, upload_to='caffeine/')
 
     def __str__(self):
-        return f"{self.person} drank {self.coffee_type} from {self.coffee_source}"
+        return f"{self.name}"
+
+
+class CaffeineType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    category = models.ForeignKey(CaffeineCategory, on_delete=models.DO_NOTHING)
+    description = models.CharField(max_length=256)
+    caffeine = models.FloatField()
+    commonServing = models.IntegerField()
+    image = models.ImageField(blank=True, null=True, upload_to='caffeine/')
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class CaffeineCommonServing(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    value = models.IntegerField()
+    image = models.ImageField(blank=True, null=True, upload_to='caffeine/')
+
+    def __str__(self):
+        return f"{self.name} - {self.value}ml"
+
+
+class Caffeine(Log):
+    drink_size = models.FloatField()
+    drink_type = models.ForeignKey(CaffeineType, related_name="caffeine_logs", on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return f"{self.person} drank {self.drink_type}"
 
 
 class TooLate(Log):

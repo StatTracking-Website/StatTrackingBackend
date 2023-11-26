@@ -11,16 +11,13 @@ from rest_framework.request import Request
 from StatTrackingBackend.models.user_models import User
 
 
-def is_friend_and_has_access(user, access):
-    return Q(person__friends__user_to=user) & Q(person__friends__access__contains=access)
-
-
 class IsFriendFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset: QuerySet, view):
         user: User = request.user
         access = view.access
-        return (queryset.prefetch_related('person__friends')
-                .filter(Q(person=user) | is_friend_and_has_access(user, access)))
+        ids = [entry.id for entry in queryset.prefetch_related('person__friends') if entry.person == user
+               or entry.person.friends.filter(user_to=user, access__contains=access).exists()]
+        return queryset.filter(id__in=ids)
 
 
 class MalformedTimeException(APIException):

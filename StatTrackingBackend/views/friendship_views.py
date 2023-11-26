@@ -4,7 +4,8 @@ from rest_framework.views import APIView
 
 from StatTrackingBackend.models.friendship_models import FriendshipRequest, Friendship
 from StatTrackingBackend.serializer.friendship_serializer import FriendshipToSerializer, FriendshipFromSerializer, \
-    NewFriendshipRequestSerializer, FriendshipSettingsSerializer, FriendshipRequestSerializer
+    NewFriendshipRequestSerializer, FriendshipSettingsSerializer, FriendshipRequestSerializer, \
+    BundledFriendshipSerializer
 from StatTrackingBackend.utility import SchwurbelSchema
 
 
@@ -70,6 +71,19 @@ class AcceptFriendshipRequestView(APIView):
         catch_error(lambda: FriendshipRequest.objects
                     .accept_friendship(user_from=data['user_from'], user_to=request.user))
         return Response({'detail': 'friendship request was accepted'})
+
+
+class BundledFriendshipDataView(APIView):
+    schema = SchwurbelSchema(name='getBundledFriendData', serializer=BundledFriendshipSerializer)
+
+    def get(self, request):
+        serializer = BundledFriendshipSerializer({
+            "friends": request.user.friends,
+            "friends_access": request.user.friends_reversed,
+            "requests_incoming": request.user.friendship_requests_received,
+            "requests_outgoing": request.user.friendship_requests_sent
+        })
+        return Response(serializer.data)
 
 
 class ActiveFriendshipsView(APIView):

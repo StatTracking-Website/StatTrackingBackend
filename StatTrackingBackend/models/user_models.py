@@ -4,7 +4,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from multiselectfield import MultiSelectField
 
-PUBLIC_ACCESS = (('Coffee', 'Access Coffee'),
+PUBLIC_ACCESS = (('Caffeine', 'Access Caffeine'),
                  ('TooLate', 'Access Too Late'))
 PUBLIC_ACCESS_VALUES = ",".join([i[0] for i in PUBLIC_ACCESS])
 

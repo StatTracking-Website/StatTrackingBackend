@@ -1,4 +1,4 @@
-from rest_framework import serializers, status, permissions
+from rest_framework import status
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -50,7 +50,7 @@ class RegisterUserView(LateThrottleAPIView):
         return Response({'detail': 'user created'})
 
 
-class VerifyTokenView(APIView):
+class TokenVerifyView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):

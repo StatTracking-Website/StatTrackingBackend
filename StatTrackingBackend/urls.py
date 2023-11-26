@@ -1,3 +1,5 @@
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
@@ -7,10 +9,9 @@ from rest_framework.schemas import get_schema_view
 
 from StatTrackingBackend.views.friendship_views import NewFriendshipRequestView, DeclineFriendshipRequestView, \
     AcceptFriendshipRequestView, UpdateFriendshipView, ActiveFriendshipsView, FriendshipRemoveView, \
-    FriendshipRequestView
-from StatTrackingBackend.views.log_views import CoffeeViewSet, TooLateViewSet, HornyViewSet
-from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, \
-    VerifyTokenView
+    FriendshipRequestView, BundledFriendshipDataView
+from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, HornyViewSet, CaffeineTypeViewSet
+from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -33,6 +34,7 @@ urlpatterns = [
     path('users/setPassword/', SetPasswordView.as_view(), name="set_password"),
     path('users/registerUser/', RegisterUserView.as_view(), name="register_user"),
 
+    path('friends/bundledData/', BundledFriendshipDataView.as_view(), name="bundled_friendship"),
     path('friends/', ActiveFriendshipsView.as_view(), name="friendships"),
     path('friends/update/', UpdateFriendshipView.as_view(), name="update_friendship"),
     path('friends/remove/', FriendshipRemoveView.as_view(), name="remove_friendship"),
@@ -44,12 +46,15 @@ urlpatterns = [
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/verify/', VerifyTokenView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    path('logs/coffee/', CoffeeViewSet.as_view(), name="coffee"),
+    path('logs/caffeine/', CaffeineViewSet.as_view(), name="coffee"),
+    path('logs/caffeine/types/', CaffeineTypeViewSet.as_view(), name="coffee_types"),
     path('logs/too_late/', TooLateViewSet.as_view(), name="too_late"),
     path('logs/horny/', HornyViewSet.as_view(), name="horny"),
 
     path('', include(router.urls)),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -28,7 +28,8 @@ SECRET_KEY = 'django-insecure-50g5#6cdl)n%(-s6b8q4z$=7zkk-=td3m+*h^zk&=1j7q1v@vg
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "api.stattracking.website"
+    "api.stattracking.website",
+    "localhost"
 ]
 
 

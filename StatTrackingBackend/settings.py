@@ -29,7 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "api.stattracking.website",
-    "localhost"
+    "localhost",
+    "127.0.0.1",
 ]
 
 
@@ -149,6 +150,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'register_user': '5/day',
+        'reset_password': '10/day',
     }
 }
 

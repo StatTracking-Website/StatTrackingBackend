@@ -11,7 +11,8 @@ from StatTrackingBackend.views.friendship_views import NewFriendshipRequestView,
     AcceptFriendshipRequestView, UpdateFriendshipView, ActiveFriendshipsView, FriendshipRemoveView, \
     FriendshipRequestView, BundledFriendshipDataView
 from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, HornyViewSet, CaffeineTypeViewSet
-from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView
+from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView, \
+    ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -31,10 +32,14 @@ urlpatterns = [
         extra_context={'schema_url': 'openapi-schema'}
     ), name='redoc-ui'),
 
-    path('users/setPassword/', SetPasswordView.as_view(), name="set_password"),
-    path('users/registerUser/', RegisterUserView.as_view(), name="register_user"),
+    path('users/set-password/', SetPasswordView.as_view(), name="set_password"),
+    path('users/reset-password/', ResetPasswordView.as_view(), name="reset_password"),
+    path('users/register-user/', RegisterUserView.as_view(), name="register_user"),
 
-    path('friends/bundledData/', BundledFriendshipDataView.as_view(), name="bundled_friendship"),
+    path('users/hidden/confirm-email', ConfirmEmailView.as_view(), name="confirm_email"),
+    path('users/hidden/reset-password', FinalizePasswordResetView.as_view(), name="confirm_email"),
+
+    path('friends/bundled-data/', BundledFriendshipDataView.as_view(), name="bundled_friendship"),
     path('friends/', ActiveFriendshipsView.as_view(), name="friendships"),
     path('friends/update/', UpdateFriendshipView.as_view(), name="update_friendship"),
     path('friends/remove/', FriendshipRemoveView.as_view(), name="remove_friendship"),
@@ -47,7 +52,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     path('logs/caffeine/', CaffeineViewSet.as_view(), name="coffee"),
     path('logs/caffeine/types/', CaffeineTypeViewSet.as_view(), name="coffee_types"),

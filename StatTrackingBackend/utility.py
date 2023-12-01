@@ -4,6 +4,8 @@ from rest_framework import serializers, validators
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
+import random
+import string
 
 
 class SussySerializerBypass(serializers.ModelSerializer):
@@ -60,3 +62,18 @@ class SchwurbelSchema(AutoSchema):
         'patch': '',
         'delete': '',
     }
+
+
+def generate_random_string(length: int, url_encodable: bool = False) -> str:
+    pool = string.printable if url_encodable else string.ascii_letters + string.digits
+    return ''.join(random.choice(pool) for _ in range(length))
+
+
+class MissingKeyException(Exception):
+    pass
+
+
+def check_required_keys(data: dict, required_keys: list[str]) -> bool:
+    for key in required_keys:
+        if key not in data: raise serializers.ValidationError(f"\"{key}\" is required")
+    return

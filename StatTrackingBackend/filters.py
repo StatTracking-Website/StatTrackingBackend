@@ -84,7 +84,7 @@ class UserDoesNotExistException(APIException):
     default_code = 'user_does_not_exist'
 
 
-class LogUserFilter(filters.BaseFilterBackend):
+class LogTargetFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         request: Request = request
         target_person = request.query_params.get('user')
@@ -92,7 +92,20 @@ class LogUserFilter(filters.BaseFilterBackend):
         if not target_person: return queryset
 
         try:
-            target_person = User.objects.get(user_name=target_person)
+            target_person = User.objects.get(Q(user_name=target_person) | Q(email=target_person) | Q(uuid=target_person))
             return queryset.filter(person=target_person)
+        except User.DoesNotExist:
+            raise UserDoesNotExistException()
+
+
+class SpecificUsersFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        request: Request = request
+        target_person = request.query_params.get('users')
+        if not target_person: return queryset
+
+        try:
+            persons = target_person.split(',')
+            return queryset.filter(Q(user_name__in=persons) | Q(email__in=persons) | Q(uuid__in=persons))
         except User.DoesNotExist:
             raise UserDoesNotExistException()

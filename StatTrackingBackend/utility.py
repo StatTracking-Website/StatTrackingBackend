@@ -64,7 +64,7 @@ class SchwurbelSchema(AutoSchema):
     }
 
 
-def generate_random_string(length: int, url_encodable: bool = False) -> str:
+def generate_random_string(length: int, url_encodable: bool = True) -> str:
     pool = string.printable if url_encodable else string.ascii_letters + string.digits
     return ''.join(random.choice(pool) for _ in range(length))
 

@@ -124,7 +124,7 @@ USE_TZ = True
 
 STATIC_ROOT = "export"
 STATIC_URL = 'static/'
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "data", "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "data", "media")
 MEDIA_URL = '/media/'
 
 # Default primary key field type

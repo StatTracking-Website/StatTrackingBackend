@@ -1,15 +1,17 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from StatTrackingBackend.email import send_confirm_email
+from StatTrackingBackend.filters import SpecificUsersFilter
 from StatTrackingBackend.models.user_models import User, UserVerification
-from StatTrackingBackend.serializer.user_serializer import UserSerializer, RegisterUserSerializer, \
-    UpdatePasswordSerializer
+from StatTrackingBackend.serializer.user_serializer import UserProfileSerializer, RegisterUserSerializer, \
+    UpdatePasswordSerializer, UserSerializer, ProfilePictureSerializer
 from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView, generate_random_string, \
     check_required_keys
 
@@ -17,7 +19,21 @@ from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView, ge
 class UserViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
+    filter_backends = [SpecificUsersFilter]
+    serializer_class = UserProfileSerializer
+
+
+class ProfilePictureUploadView(APIView):
+    parser_classes = (FileUploadParser,)
+
+    def post(self, request, *args, **kwargs):
+        file_serializer = ProfilePictureSerializer(data=request.data)
+
+        if not file_serializer.is_valid():
+            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        file_serializer.save()
+        return Response(file_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class SetPasswordView(APIView):
@@ -42,15 +58,19 @@ class ResetPasswordView(LateThrottleAPIView):
     throttle_scope = 'reset_password'
     permission_classes = [AllowAny]
 
-    def put(self, request):
+    def post(self, request):
         check_required_keys(request.data, ['email'])
         user: User = get_object_or_404(User, email=request.data['email'])
 
         self.check_throttles(request)
 
         confirm_code = generate_random_string(50)
-        user.verification.password_code = confirm_code
-        user.verification.save()
+        try:
+            user.verification.password_code = confirm_code
+            user.verification.save()
+        except UserVerification.DoesNotExist:
+            UserVerification.objects.create(user=user, password_code=confirm_code)
+
         send_confirm_email(user.email, user.user_name, confirm_code)
         return Response({'detail': 'reset email was sent'})
 
@@ -70,7 +90,7 @@ class RegisterUserView(LateThrottleAPIView):
 
         confirm_code = generate_random_string(10)
         user: User = User.objects.create_user(data['email'], data["user_name"], data["password"])
-        #UserVerification.objects.create(user=user, email_code=confirm_code)
+        UserVerification.objects.create(user=user, email_code=confirm_code)
         send_confirm_email(data['email'], data['user_name'], confirm_code)
         return Response({'detail': 'user created'})
 
@@ -79,8 +99,8 @@ class ConfirmEmailView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        check_required_keys(request.data, ['code', 'email'])
-        user: User = get_object_or_404(User, email=request.data["email"])
+        check_required_keys(request.data, ['code'])
+        user: User = UserSerializer().to_internal_value(request.data)
         if user.verification.email_code != request.data["code"]:
             return Response({'detail': 'code not valid'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -93,8 +113,8 @@ class FinalizePasswordResetView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        check_required_keys(request.data, ['code', 'email', 'new_password'])
-        user: User = get_object_or_404(User, email=request.data["email"])
+        check_required_keys(request.data, ['code', 'new_password'])
+        user: User = UserSerializer().to_internal_value(request.data)
         if user.verification.password_code != request.data["code"]:
             return Response({'detail': 'code not valid'}, status=status.HTTP_400_BAD_REQUEST)
 

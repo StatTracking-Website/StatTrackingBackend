@@ -66,5 +66,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 class UserVerification(models.Model):
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name="verification")
     verified_email = models.BooleanField(default=False, blank=True)
-    email_code = models.CharField(max_length=10)
+    email_code = models.CharField(max_length=10, blank=True)
     password_code = models.CharField(max_length=50, blank=True)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name="profile")
+    picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    bio = models.CharField(max_length=256, blank=True, null=True)

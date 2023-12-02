@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from StatTrackingBackend.models.friendship_models import FriendshipRequest, ACCESS
-from StatTrackingBackend.models.user_models import User
+from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField
 
 
 class FriendshipRequestSerializer(serializers.ModelSerializer):
-    user_to = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
-    user_from = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    user_to = UserSlugIdentityField()
+    user_from = UserSlugIdentityField()
 
     class Meta:
         model = FriendshipRequest
@@ -14,7 +14,7 @@ class FriendshipRequestSerializer(serializers.ModelSerializer):
 
 
 class NewFriendshipRequestSerializer(serializers.ModelSerializer):
-    user_to = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    user_to = UserSlugIdentityField()
 
     class Meta:
         model = FriendshipRequest
@@ -22,20 +22,20 @@ class NewFriendshipRequestSerializer(serializers.ModelSerializer):
 
 
 class FriendshipFromSerializer(serializers.Serializer):
-    user_from = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    user_from = UserSlugIdentityField()
 
 
 class FriendshipToSerializer(serializers.Serializer):
-    user_to = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    user_to = UserSlugIdentityField()
 
 
 class FriendshipSettingsSerializer(serializers.Serializer):
-    user_to = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    user_to = UserSlugIdentityField()
     access = serializers.MultipleChoiceField(choices=ACCESS)
 
 
 class ReverseFriendshipSettingsSerializer(serializers.Serializer):
-    user_from = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    user_from = UserSlugIdentityField()
     access = serializers.MultipleChoiceField(choices=ACCESS)
 
 

@@ -12,7 +12,7 @@ from StatTrackingBackend.views.friendship_views import NewFriendshipRequestView,
     FriendshipRequestView, BundledFriendshipDataView
 from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, HornyViewSet, CaffeineTypeViewSet
 from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView, \
-    ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView
+    ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView, ProfilePictureUploadView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -32,12 +32,13 @@ urlpatterns = [
         extra_context={'schema_url': 'openapi-schema'}
     ), name='redoc-ui'),
 
+    path('users/upload-profile-picture/', ProfilePictureUploadView.as_view(), name="upload_profile_picture"),
     path('users/set-password/', SetPasswordView.as_view(), name="set_password"),
     path('users/reset-password/', ResetPasswordView.as_view(), name="reset_password"),
     path('users/register-user/', RegisterUserView.as_view(), name="register_user"),
 
-    path('users/hidden/confirm-email', ConfirmEmailView.as_view(), name="confirm_email"),
-    path('users/hidden/reset-password', FinalizePasswordResetView.as_view(), name="confirm_email"),
+    path('users/hidden/confirm-email/', ConfirmEmailView.as_view(), name="confirm_email"),
+    path('users/hidden/reset-password/', FinalizePasswordResetView.as_view(), name="confirm_email"),
 
     path('friends/bundled-data/', BundledFriendshipDataView.as_view(), name="bundled_friendship"),
     path('friends/', ActiveFriendshipsView.as_view(), name="friendships"),

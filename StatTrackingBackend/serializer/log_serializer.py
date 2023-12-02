@@ -3,13 +3,14 @@ from rest_framework import serializers
 from StatTrackingBackend.models.log_models import Caffeine, TooLate, Horny, Log, CaffeineType, CaffeineCategory, \
     CaffeineCommonServing
 from StatTrackingBackend.models.user_models import User
+from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField
 
 log_fields = ['logger', 'time', 'person']
 
 
 class LogSerializer(serializers.ModelSerializer):
-    logger = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
-    person = serializers.SlugRelatedField(slug_field='user_name', queryset=User.objects.all())
+    logger = UserSlugIdentityField()
+    person = UserSlugIdentityField()
 
 
 class CaffeineSerializer(LogSerializer):

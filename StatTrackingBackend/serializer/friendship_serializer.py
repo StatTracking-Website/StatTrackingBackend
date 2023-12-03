@@ -1,16 +1,20 @@
 from rest_framework import serializers
 
 from StatTrackingBackend.models.friendship_models import FriendshipRequest, ACCESS
-from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField
+from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField, UserProfileSerializer
 
 
 class FriendshipRequestSerializer(serializers.ModelSerializer):
-    user_to = UserSlugIdentityField()
-    user_from = UserSlugIdentityField()
+
+    def __init__(self, *args, **kwargs):
+        self.fields['user'].source = 'user_from' if kwargs.pop("incoming") else 'user_to'
+        super().__init__(*args, **kwargs)
+
+    user = UserProfileSerializer(source='user_to')
 
     class Meta:
         model = FriendshipRequest
-        fields = ['user_from', 'user_to', 'message']
+        fields = ['user', 'message']
 
 
 class NewFriendshipRequestSerializer(serializers.ModelSerializer):
@@ -34,13 +38,25 @@ class FriendshipSettingsSerializer(serializers.Serializer):
     access = serializers.MultipleChoiceField(choices=ACCESS)
 
 
-class ReverseFriendshipSettingsSerializer(serializers.Serializer):
-    user_from = UserSlugIdentityField()
+class FriendshipSettingsDetailSerializer(serializers.Serializer):
+
+    def __init__(self, *args, **kwargs):
+        self.fields['user'].source = 'user_from' if kwargs.pop("incoming") else 'user_to'
+        super().__init__(*args, **kwargs)
+
+    user = UserProfileSerializer(source='user_to')
     access = serializers.MultipleChoiceField(choices=ACCESS)
 
 
 class BundledFriendshipSerializer(serializers.Serializer):
-    friends = FriendshipSettingsSerializer(many=True)
-    friends_access = ReverseFriendshipSettingsSerializer(many=True)
-    requests_incoming = FriendshipRequestSerializer(many=True)
-    requests_outgoing = FriendshipRequestSerializer(many=True)
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.context['request'] = request
+
+    friends = FriendshipSettingsDetailSerializer(many=True, incoming=False)
+    friends_access = FriendshipSettingsDetailSerializer(many=True, incoming=True)
+    requests_incoming = FriendshipRequestSerializer(many=True, incoming=True)
+    requests_outgoing = FriendshipRequestSerializer(many=True, incoming=False)

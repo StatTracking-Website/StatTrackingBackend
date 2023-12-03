@@ -1,8 +1,10 @@
+from django.db.models import Q
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from StatTrackingBackend.models.friendship_models import FriendshipRequest, Friendship
+from StatTrackingBackend.models.user_models import User
 from StatTrackingBackend.serializer.friendship_serializer import FriendshipToSerializer, FriendshipFromSerializer, \
     NewFriendshipRequestSerializer, FriendshipSettingsSerializer, FriendshipRequestSerializer, \
     BundledFriendshipSerializer
@@ -27,9 +29,9 @@ class FriendshipRequestView(APIView):
 
     def get(self, request):
         if request.query_params.get('type', 'received') == 'sent':
-            serializer = FriendshipRequestSerializer(request.user.friendship_requests_sent.all(), many=True)
+            serializer = FriendshipRequestSerializer(request.user.friendship_requests_sent.all(), many=True, incoming=False)
             return Response(serializer.data)
-        serializer = FriendshipRequestSerializer(request.user.friendship_requests_received.all(), many=True)
+        serializer = FriendshipRequestSerializer(request.user.friendship_requests_received.all(), many=True, incoming=True)
         return Response(serializer.data)
 
 
@@ -82,7 +84,7 @@ class BundledFriendshipDataView(APIView):
             "friends_access": request.user.friends_reversed,
             "requests_incoming": request.user.friendship_requests_received,
             "requests_outgoing": request.user.friendship_requests_sent
-        })
+        }, request=request)
         return Response(serializer.data)
 
 

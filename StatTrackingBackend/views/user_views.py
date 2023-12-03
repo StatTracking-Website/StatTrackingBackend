@@ -9,7 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from StatTrackingBackend.email import send_confirm_email
 from StatTrackingBackend.filters import SpecificUsersFilter
-from StatTrackingBackend.models.user_models import User, UserVerification
+from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 from StatTrackingBackend.serializer.user_serializer import UserProfileSerializer, RegisterUserSerializer, \
     UpdatePasswordSerializer, UserSerializer, ProfilePictureSerializer
 from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView, generate_random_string, \
@@ -100,6 +100,7 @@ class ConfirmEmailView(APIView):
 
     def post(self, request):
         check_required_keys(request.data, ['code'])
+        # fix this
         user: User = UserSerializer().to_internal_value(request.data)
         if user.verification.email_code != request.data["code"]:
             return Response({'detail': 'code not valid'}, status=status.HTTP_400_BAD_REQUEST)
@@ -127,9 +128,15 @@ class TokenVerifyView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        verification = UserVerification.objects.get_or_create(user=request.user)[0]
+        profile = UserProfile.objects.get_or_create(user=request.user)[0]
         return Response(
             {
-                'status': 'token is working',
+                'detail': 'token is working',
                 'user_name': request.user.user_name,
+                'email': request.user.email,
                 'access': request.user.access,
+                'verified': verification.verified_email,
+                'profile_picture': request.build_absolute_uri(profile.picture.url) if profile.picture else '',
+                'profile_bio': profile.bio
             })

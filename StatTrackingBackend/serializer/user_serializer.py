@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+
 from StatTrackingBackend.models.user_models import User, UserProfile
 
 
@@ -36,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     identity = UserIdentityField(source='*')
-    profile_picture = serializers.ImageField(source='profile.picture')
+    profile_picture = serializers.ImageField(source='profile.picture', use_url=True)
     profile_bio = serializers.CharField(source='profile.bio')
 
     class Meta:

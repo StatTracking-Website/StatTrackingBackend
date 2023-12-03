@@ -3,11 +3,21 @@ from django.contrib import admin
 from StatTrackingBackend.models.friendship_models import Friendship, FriendshipRequest
 from StatTrackingBackend.models.log_models import Caffeine, TooLate, Horny, CaffeineType, CaffeineCategory, \
     CaffeineCommonServing
-from StatTrackingBackend.models.user_models import User
+from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(UserVerification)
+class UserVerificationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
     pass
 
 

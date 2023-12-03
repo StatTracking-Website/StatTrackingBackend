@@ -3,6 +3,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from multiselectfield import MultiSelectField
+from django_resized import ResizedImageField
 
 PUBLIC_ACCESS = (('Caffeine', 'Access Caffeine'),
                  ('TooLate', 'Access Too Late'))
@@ -69,8 +70,14 @@ class UserVerification(models.Model):
     email_code = models.CharField(max_length=10, blank=True)
     password_code = models.CharField(max_length=50, blank=True)
 
+    def __str__(self):
+        return self.user.user_name
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name="profile")
-    picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    picture = ResizedImageField(size=[512, 512], upload_to='profile_pictures/', blank=True, null=True)
     bio = models.CharField(max_length=256, blank=True, null=True)
+
+    def __str__(self):
+        return self.user.user_name

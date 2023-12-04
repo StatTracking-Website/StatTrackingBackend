@@ -38,14 +38,14 @@ class FriendshipSettingsSerializer(serializers.Serializer):
     access = serializers.MultipleChoiceField(choices=ACCESS)
 
 
-class FriendshipSettingsDetailSerializer(serializers.Serializer):
+class FriendshipSettingsJoinedSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
-        self.fields['user'].source = 'user_from' if kwargs.pop("incoming") else 'user_to'
         super().__init__(*args, **kwargs)
 
-    user = UserProfileSerializer(source='user_to')
-    access = serializers.MultipleChoiceField(choices=ACCESS)
+    user = UserProfileSerializer()
+    access_incoming = serializers.MultipleChoiceField(choices=ACCESS)
+    access_outgoing = serializers.MultipleChoiceField(choices=ACCESS)
 
 
 class BundledFriendshipSerializer(serializers.Serializer):
@@ -56,7 +56,6 @@ class BundledFriendshipSerializer(serializers.Serializer):
         for field in self.fields.values():
             field.context['request'] = request
 
-    friends = FriendshipSettingsDetailSerializer(many=True, incoming=False)
-    friends_access = FriendshipSettingsDetailSerializer(many=True, incoming=True)
+    friends = FriendshipSettingsJoinedSerializer(many=True)
     requests_incoming = FriendshipRequestSerializer(many=True, incoming=True)
     requests_outgoing = FriendshipRequestSerializer(many=True, incoming=False)

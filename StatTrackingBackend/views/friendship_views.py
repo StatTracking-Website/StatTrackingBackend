@@ -7,7 +7,7 @@ from StatTrackingBackend.models.friendship_models import FriendshipRequest, Frie
 from StatTrackingBackend.models.user_models import User
 from StatTrackingBackend.serializer.friendship_serializer import FriendshipToSerializer, FriendshipFromSerializer, \
     NewFriendshipRequestSerializer, FriendshipSettingsSerializer, FriendshipRequestSerializer, \
-    BundledFriendshipSerializer
+    BundledFriendshipSerializer, FriendshipSettingsJoinedSerializer
 from StatTrackingBackend.utility import SchwurbelSchema
 
 
@@ -75,13 +75,29 @@ class AcceptFriendshipRequestView(APIView):
         return Response({'detail': 'friendship request was accepted'})
 
 
+def combine_friendship_requests(request):
+    return combine_friendships(request.user.friends, request.user.friends_reversed)
+
+
+def combine_friendships(friends, friends_access):
+    combined = []
+    for friend in friends.all():
+        friend_access = friends_access.filter(user_to=friend.user_from).first()
+        if friend_access:
+            combined.append({
+                "user": friend.user_to,
+                "access_incoming": friend_access.access,
+                "access_outgoing": friend.access
+            })
+    return combined
+
+
 class BundledFriendshipDataView(APIView):
     schema = SchwurbelSchema(name='getBundledFriendData', serializer=BundledFriendshipSerializer)
 
     def get(self, request):
         serializer = BundledFriendshipSerializer({
-            "friends": request.user.friends,
-            "friends_access": request.user.friends_reversed,
+            "friends": combine_friendship_requests(request),
             "requests_incoming": request.user.friendship_requests_received,
             "requests_outgoing": request.user.friendship_requests_sent
         }, request=request)
@@ -92,7 +108,7 @@ class ActiveFriendshipsView(APIView):
     schema = SchwurbelSchema(name='getFriends', serializer=FriendshipSettingsSerializer)
 
     def get(self, request):
-        serializer = FriendshipSettingsSerializer(request.user.friends.all(), many=True)
+        serializer = FriendshipSettingsJoinedSerializer(combine_friendship_requests(request), many=True)
         return Response(serializer.data)
 
 

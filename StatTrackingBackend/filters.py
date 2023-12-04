@@ -40,9 +40,11 @@ class LogTimeFilter(filters.BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         request: Request = request
-        unit = request.query_params.get('unit', 'days')
+        unit = request.query_params.get('unit')
         size = request.query_params.get('size', '1')
         offset = request.query_params.get('offset', '0')
+
+        if not unit: return queryset
 
         try:
             size = int(size)

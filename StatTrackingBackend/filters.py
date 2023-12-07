@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse
 
 from django.db.models import Q, QuerySet
 from django.utils import timezone
@@ -73,11 +74,12 @@ class LogTimeWindowFilter(filters.BaseFilterBackend):
         if not start_time: return queryset
 
         try:
-            start_time = datetime.strptime(start_time, "%Y/%m/%dT%H:%M:%SZ")
-            end_time = datetime.strptime(end_time, "%Y/%m/%dT%H:%M:%SZ") if end_time else timezone.now()
+            start_time = parse(start_time)
+            end_time = parse(end_time) if end_time else timezone.now()
             return queryset.filter(Q(time__gte=start_time) & Q(time__lte=end_time))
         except ValueError:
             raise MalformedDateTimeException()
+
 
 
 class UserDoesNotExistException(APIException):

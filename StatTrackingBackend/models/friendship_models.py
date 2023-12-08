@@ -2,7 +2,7 @@ from datetime import datetime
 from django.db import models
 from multiselectfield import MultiSelectField
 
-from StatTrackingBackend.models.user_models import User, ACCESS
+from StatTrackingBackend.models.user_models import User, ACCESS, SOCIAL_ACCESS_VALUES
 
 
 class FriendshipManager(models.Manager):
@@ -11,8 +11,8 @@ class FriendshipManager(models.Manager):
         if self.filter(user_from=user_from, user_to=user_to).exists():
             raise ValueError('Friendship already exists')
 
-        self.create(user_from=user_from, user_to=user_to)
-        self.create(user_from=user_to, user_to=user_from)
+        self.create(user_from=user_from, user_to=user_to, access=SOCIAL_ACCESS_VALUES)
+        self.create(user_from=user_to, user_to=user_from, access=SOCIAL_ACCESS_VALUES)
 
     def unfriend(self, user_from: User, user_to: User):
         self.filter(user_from=user_from, user_to=user_to).delete()

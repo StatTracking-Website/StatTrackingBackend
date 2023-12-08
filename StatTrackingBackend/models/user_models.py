@@ -5,15 +5,18 @@ from django.db import models
 from multiselectfield import MultiSelectField
 from django_resized import ResizedImageField
 
-PUBLIC_ACCESS = (('Caffeine', 'Access Caffeine'),
-                 ('TooLate', 'Access Too Late'))
+PUBLIC_ACCESS = (('Caffeine', 'Access Caffeine', 'Social'),
+                 ('TooLate', 'Access Too Late', 'Social'),
+                 ('Sleep', 'Access Sleep'), 'Personal')
 PUBLIC_ACCESS_VALUES = ",".join([i[0] for i in PUBLIC_ACCESS])
 
-HIDDEN_ACCESS = (('Horny', 'Access Horny'),)
+HIDDEN_ACCESS = (('Money', 'Access Money', 'Personal'),)
 HIDDEN_ACCESS_VALUES = ",".join([i[0] for i in HIDDEN_ACCESS])
 
 ACCESS = PUBLIC_ACCESS + HIDDEN_ACCESS
 ACCESS_VALUES = ",".join([i[0] for i in ACCESS])
+SOCIAL_ACCESS_VALUES = ",".join([i[0] for i in ACCESS if i[2] == 'Social'])
+PERSONAL_ACCESS_VALUES = ",".join([i[0] for i in ACCESS if i[2] == 'Personal'])
 
 
 class UserManager(BaseUserManager):

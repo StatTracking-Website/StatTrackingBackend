@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException, PermissionDenied
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS, BasePermission
 
+from StatTrackingBackend.models.log_models import TooLate
 from StatTrackingBackend.models.user_models import User
 from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField
 
@@ -23,8 +24,14 @@ class HasAccessRights(BasePermission):
         raise PermissionDenied("Your account does not has access to this resource")
 
 
+# Check if the player is a friend of the logged-in user
+def has_friend_access(person: User, user: User, access: str):
+    if person == user: return True
+    if person.friends.filter(Q(user_to=user) & Q(access__contains=access)).exists(): return True
+    raise PermissionDenied("You are not friends with this person")
+
+
 class PermissionLogSerializer(serializers.Serializer):
-    logger = UserSlugIdentityField()
     person = UserSlugIdentityField()
 
 
@@ -32,15 +39,24 @@ class IsFriendOrReadonly(BasePermission):
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS: return True
 
-        # Check if the player is a friend of the logged-in user
         serializer = PermissionLogSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         person: User = serializer.validated_data['person']
-        if person == request.user: return True
+        return has_friend_access(person, request.user, view.access)
 
-        access: str = view.access
-        if person.friends.filter(Q(user_to=request.user) & Q(access__contains=access)).exists(): return True
-        raise PermissionDenied("You are not friends with this person")
+
+class PermissionRatingSerializer(serializers.Serializer):
+    target = serializers.PrimaryKeyRelatedField(queryset=TooLate.objects.all())
+
+
+class IsFriendRating(BasePermission):
+    def has_object_permission(self, request, view, obj):
+
+        serializer = PermissionRatingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        person: User = serializer.validated_data['target'].person
+        return has_friend_access(person, request.user, view.access)
 
 

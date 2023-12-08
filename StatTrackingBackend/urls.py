@@ -10,7 +10,8 @@ from rest_framework.schemas import get_schema_view
 from StatTrackingBackend.views.friendship_views import NewFriendshipRequestView, DeclineFriendshipRequestView, \
     AcceptFriendshipRequestView, UpdateFriendshipView, ActiveFriendshipsView, FriendshipRemoveView, \
     FriendshipRequestView, BundledFriendshipDataView
-from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, HornyViewSet, CaffeineTypeViewSet
+from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, HornyViewSet, CaffeineTypeViewSet, \
+    TooLateRatingViewSet, SleepViewSet, MoneyViewSet, MoneyUseCaseViewSet
 from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView, \
     ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView, ProfilePictureUploadView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -57,8 +58,11 @@ urlpatterns = [
 
     path('logs/caffeine/', CaffeineViewSet.as_view(), name="coffee"),
     path('logs/caffeine/types/', CaffeineTypeViewSet.as_view(), name="coffee_types"),
+    path('logs/too_late/ratings/', TooLateRatingViewSet.as_view(), name="too_late_ratings"),
     path('logs/too_late/', TooLateViewSet.as_view(), name="too_late"),
-    path('logs/horny/', HornyViewSet.as_view(), name="horny"),
+    path('logs/sleep/', SleepViewSet.as_view(), name="sleep"),
+    path('logs/money/use-case/', MoneyUseCaseViewSet.as_view(), name="money_use_case"),
+    path('logs/money/', MoneyViewSet.as_view(), name="money"),
 
     path('', include(router.urls)),
 ]

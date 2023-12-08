@@ -16,9 +16,9 @@ class IsFriendFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset: QuerySet, view):
         user: User = request.user
         access = view.access
-        ids = [entry.id for entry in queryset.prefetch_related('person__friends') if entry.person == user
+        uuids = [entry.uuid for entry in queryset.prefetch_related('person__friends') if entry.person == user
                or entry.person.friends.filter(user_to=user, access__contains=access).exists()]
-        return queryset.filter(id__in=ids)
+        return queryset.filter(uuid__in=uuids)
 
 
 class MalformedTimeException(APIException):

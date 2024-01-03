@@ -7,13 +7,16 @@ from django_resized import ResizedImageField
 
 PUBLIC_ACCESS = (('Caffeine', 'Access Caffeine', 'Social'),
                  ('TooLate', 'Access Too Late', 'Social'),
-                 ('Sleep', 'Access Sleep'), 'Personal')
+                 ('Sleep', 'Access Sleep', 'Personal'))
+PUBLIC_ACCESS_TUPLE = [(e[0], e[1]) for e in PUBLIC_ACCESS]
 PUBLIC_ACCESS_VALUES = ",".join([i[0] for i in PUBLIC_ACCESS])
 
 HIDDEN_ACCESS = (('Money', 'Access Money', 'Personal'),)
+HIDDEN_ACCESS_TUPLE = [(e[0], e[1]) for e in HIDDEN_ACCESS]
 HIDDEN_ACCESS_VALUES = ",".join([i[0] for i in HIDDEN_ACCESS])
 
 ACCESS = PUBLIC_ACCESS + HIDDEN_ACCESS
+ACCESS_TUPLE = PUBLIC_ACCESS_TUPLE + HIDDEN_ACCESS_TUPLE
 ACCESS_VALUES = ",".join([i[0] for i in ACCESS])
 SOCIAL_ACCESS_VALUES = ",".join([i[0] for i in ACCESS if i[2] == 'Social'])
 PERSONAL_ACCESS_VALUES = ",".join([i[0] for i in ACCESS if i[2] == 'Personal'])
@@ -51,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     uuid = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     user_name = models.CharField(max_length=30, unique=True)
-    access = MultiSelectField(choices=ACCESS, max_length=256, default=PUBLIC_ACCESS_VALUES, blank=True)
+    access = MultiSelectField(choices=ACCESS_TUPLE, max_length=256, default=PUBLIC_ACCESS_VALUES, blank=True)
 
     objects = UserManager()
 

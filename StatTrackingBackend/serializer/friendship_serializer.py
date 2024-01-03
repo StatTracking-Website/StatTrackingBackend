@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from StatTrackingBackend.models.friendship_models import FriendshipRequest, ACCESS
+from StatTrackingBackend.models.friendship_models import FriendshipRequest
+from StatTrackingBackend.models.user_models import ACCESS_TUPLE
 from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField, UserProfileSerializer
 
 
@@ -35,7 +36,7 @@ class FriendshipToSerializer(serializers.Serializer):
 
 class FriendshipSettingsSerializer(serializers.Serializer):
     user_to = UserSlugIdentityField()
-    access = serializers.MultipleChoiceField(choices=ACCESS)
+    access = serializers.MultipleChoiceField(choices=ACCESS_TUPLE)
 
 
 class FriendshipSettingsJoinedSerializer(serializers.Serializer):
@@ -44,8 +45,8 @@ class FriendshipSettingsJoinedSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
 
     user = UserProfileSerializer()
-    access_incoming = serializers.MultipleChoiceField(choices=ACCESS)
-    access_outgoing = serializers.MultipleChoiceField(choices=ACCESS)
+    access_incoming = serializers.MultipleChoiceField(choices=ACCESS_TUPLE)
+    access_outgoing = serializers.MultipleChoiceField(choices=ACCESS_TUPLE)
 
 
 class BundledFriendshipSerializer(serializers.Serializer):

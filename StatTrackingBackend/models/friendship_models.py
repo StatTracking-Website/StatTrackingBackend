@@ -2,7 +2,7 @@ from datetime import datetime
 from django.db import models
 from multiselectfield import MultiSelectField
 
-from StatTrackingBackend.models.user_models import User, ACCESS, SOCIAL_ACCESS_VALUES
+from StatTrackingBackend.models.user_models import User, ACCESS_TUPLE, SOCIAL_ACCESS_VALUES
 
 
 class FriendshipManager(models.Manager):
@@ -31,7 +31,7 @@ class FriendshipManager(models.Manager):
 class Friendship(models.Model):
     user_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends')
     user_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends_reversed')
-    access = MultiSelectField(choices=ACCESS, max_length=256, blank=True)
+    access = MultiSelectField(choices=ACCESS_TUPLE, max_length=256, blank=True)
 
     objects = FriendshipManager()
 

@@ -93,7 +93,7 @@ def combine_friendships(friends, friends_access):
 
 
 class BundledFriendshipDataView(APIView):
-    schema = SchwurbelSchema(name='getBundledFriendData', serializer=BundledFriendshipSerializer)
+    # schema = SchwurbelSchema(name='getBundledFriendData', serializer=BundledFriendshipSerializer)
 
     def get(self, request):
         serializer = BundledFriendshipSerializer({

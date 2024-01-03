@@ -10,7 +10,7 @@ from rest_framework.schemas import get_schema_view
 from StatTrackingBackend.views.friendship_views import NewFriendshipRequestView, DeclineFriendshipRequestView, \
     AcceptFriendshipRequestView, UpdateFriendshipView, ActiveFriendshipsView, FriendshipRemoveView, \
     FriendshipRequestView, BundledFriendshipDataView
-from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, HornyViewSet, CaffeineTypeViewSet, \
+from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, CaffeineTypeViewSet, \
     TooLateRatingViewSet, SleepViewSet, MoneyViewSet, MoneyUseCaseViewSet
 from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView, \
     ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView, ProfilePictureUploadView

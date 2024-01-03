@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from StatTrackingBackend.models.friendship_models import Friendship, FriendshipRequest
-from StatTrackingBackend.models.log_models import Caffeine, TooLate, Horny, CaffeineType, CaffeineCategory, \
+from StatTrackingBackend.models.log_models import Caffeine, TooLate, CaffeineType, CaffeineCategory, \
     CaffeineCommonServing
 from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 
@@ -55,7 +55,3 @@ class CaffeineAdmin(admin.ModelAdmin):
 class TooLateAdmin(admin.ModelAdmin):
     pass
 
-
-@admin.register(Horny)
-class HornyAdmin(admin.ModelAdmin):
-    pass

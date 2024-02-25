@@ -29,7 +29,7 @@ class CaffeineCategorySerializer(serializers.ModelSerializer):
 
 
 class CaffeineTypeSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(queryset=CaffeineCategory.objects.all())
+    category = serializers.SlugRelatedField(slug_field='name', queryset=CaffeineCategory.objects.all())
 
     class Meta:
         model = CaffeineType

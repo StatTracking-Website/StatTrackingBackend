@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from StatTrackingBackend.models.friendship_models import Friendship, FriendshipRequest
 from StatTrackingBackend.models.log_models import Caffeine, TooLate, CaffeineType, CaffeineCategory, \
-    CaffeineCommonServing
+    CaffeineCommonServing, Sleep, MoneyUseCase, Money, TooLateRating
 from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 
 
@@ -55,3 +55,22 @@ class CaffeineAdmin(admin.ModelAdmin):
 class TooLateAdmin(admin.ModelAdmin):
     pass
 
+
+@admin.register(TooLateRating)
+class TooLateAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Sleep)
+class TooLateAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Money)
+class TooLateAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(MoneyUseCase)
+class TooLateAdmin(admin.ModelAdmin):
+    pass

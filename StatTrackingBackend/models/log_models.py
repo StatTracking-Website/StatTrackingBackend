@@ -68,7 +68,7 @@ class TooLate(SocialLog):
 
 class TooLateRating(models.Model):
     rater = models.ForeignKey(User, on_delete=models.CASCADE, related_name="too_late_ratings")
-    target = models.ForeignKey(TooLate, on_delete=models.CASCADE, related_name="ratings_received")
+    target = models.ForeignKey(TooLate, on_delete=models.CASCADE, related_name="ratings")
     rating = models.SmallIntegerField()
 
     class Meta:

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from rest_framework import serializers
 
 from StatTrackingBackend.models.log_models import Caffeine, TooLate, Log, CaffeineType, CaffeineCategory, \
@@ -49,16 +50,25 @@ class BundledCaffeineSortSerializer(serializers.Serializer):
     common_serving = CaffeineCommonServingSerializer(many=True)
 
 
-class RatingField(serializers.Field):
-    def to_representation(self, obj): return obj.ratings_received.all().aggregate(models.Avg('rating'))['rating__avg']
+class TooLateLocalRatingSerializer(serializers.ModelSerializer):
+    rater = UserSlugIdentityField()
+
+    class Meta:
+        model = TooLateRating
+        fields = ("rater", "rating")
 
 
 class TooLateSerializer(SocialLogSerializer):
-    rating = RatingField(read_only=True)
+    average_rating = serializers.SerializerMethodField()
+    ratings = TooLateLocalRatingSerializer(many=True, read_only=True)
 
     class Meta:
         model = TooLate
         fields = "__all__"
+
+    def get_average_rating(self, obj):
+        avg = obj.ratings.aggregate(Avg('rating'))['rating__avg']
+        return 0 if avg is None else avg
 
 
 class TooLateRatingSerializer(serializers.ModelSerializer):

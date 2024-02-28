@@ -1,14 +1,17 @@
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView
-from rest_framework.mixins import ListModelMixin, CreateModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from StatTrackingBackend.filters import IsFriendFilter, LogTimeFilter, LogTimeWindowFilter, LogTargetFilter
+from StatTrackingBackend.filters import IsFriendFilter, LogTimeFilter, LogTimeWindowFilter, LogTargetFilter, \
+    IsFriendRatingFilter
 from StatTrackingBackend.models.log_models import Caffeine, TooLate, CaffeineType, CaffeineCategory, \
     CaffeineCommonServing, TooLateRating, Sleep, Money, MoneyUseCase
-from StatTrackingBackend.permissions import IsFriendOrReadonly, HasAccessRights, IsFriendRating
+from StatTrackingBackend.permissions import IsFriendOrReadonly, HasAccessRights, IsFriendRatingOrReadonly
 from StatTrackingBackend.serializer.log_serializer import TooLateSerializer, CaffeineSerializer, \
     CaffeineTypeSerializer, BundledCaffeineSortSerializer, TooLateRatingSerializer, SleepSerializer, MoneySerializer, \
     MoneyUseCaseSerializer
+from StatTrackingBackend.utility import check_required_keys
 
 
 class BaseLogViewSet(GenericAPIView, ListModelMixin, CreateModelMixin):
@@ -48,11 +51,23 @@ class CaffeineViewSet(SocialLogViewSet):
     access = 'Caffeine'
 
 
-class TooLateRatingViewSet(CreateAPIView):
+class TooLateRatingViewSet(ListModelMixin, GenericAPIView):
     serializer_class = TooLateRatingSerializer
     queryset = TooLateRating.objects.all()
-    permission_classes = [IsAuthenticated, HasAccessRights, IsFriendRating]
+    permission_classes = [IsAuthenticated, HasAccessRights, IsFriendRatingOrReadonly]
+    filter_backends = [IsFriendRatingFilter]
     access = 'TooLate'
+
+    def put(self, request, *args, **kwargs):
+        request.data['rater'] = request.user.user_name
+        serializer = TooLateRatingSerializer(data=request.data)
+        serializer.validators.clear()  # remove the unique together constraint
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'rating submitted'})
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class TooLateViewSet(SocialLogViewSet):

@@ -26,8 +26,7 @@ class HasAccessRights(BasePermission):
 
 # Check if the player is a friend of the logged-in user
 def has_friend_access(person: User, user: User, access: str):
-    if person == user: return True
-    if person.friends.filter(Q(user_to=user) & Q(access__contains=access)).exists(): return True
+    if person.provided_access_to(user, access): return True
     raise PermissionDenied("You are not friends with this person")
 
 
@@ -50,8 +49,9 @@ class PermissionRatingSerializer(serializers.Serializer):
     target = serializers.PrimaryKeyRelatedField(queryset=TooLate.objects.all())
 
 
-class IsFriendRating(BasePermission):
+class IsFriendRatingOrReadonly(BasePermission):
     def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS: return True
 
         serializer = PermissionRatingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

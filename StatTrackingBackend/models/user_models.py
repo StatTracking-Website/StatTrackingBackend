@@ -69,6 +69,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_superuser
 
+    def provided_access_to(self, user, access: str):
+        if self == user: return True
+        return self.friends.filter(user_to=user, access__contains=access).exists()
+
 
 class UserVerification(models.Model):
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name="verification")

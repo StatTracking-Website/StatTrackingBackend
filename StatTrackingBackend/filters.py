@@ -17,8 +17,17 @@ class IsFriendFilter(filters.BaseFilterBackend):
         user: User = request.user
         access = view.access
         uuids = [entry.uuid for entry in queryset.prefetch_related('person__friends') if entry.person == user
-               or entry.person.friends.filter(user_to=user, access__contains=access).exists()]
+               or entry.person.provided_access_to(user, access)]
         return queryset.filter(uuid__in=uuids)
+
+
+class IsFriendRatingFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset: QuerySet, view):
+        user: User = request.user
+        access = view.access
+        uuids = [entry.target.uuid for entry in queryset.prefetch_related('target__person__friends')
+                 if (entry.rater == user) or (entry.target.person.provided_access_to(user, access))]
+        return queryset.filter(target__uuid__in=uuids)
 
 
 class MalformedTimeException(APIException):

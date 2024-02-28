@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError, transaction
 from django.db.models import Avg
 from rest_framework import serializers
 
@@ -78,6 +78,18 @@ class TooLateRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = TooLateRating
         fields = "__all__"
+
+    def create(self, validated_data):
+        try:
+            # Attempt to create a new entry
+            return super().create(validated_data)
+        except IntegrityError:
+            with transaction.atomic():
+                instance = TooLateRating.objects.select_for_update().get(
+                    rater=validated_data['rater'],
+                    target=validated_data['target']
+                )
+                return self.update(instance, validated_data)
 
 
 class SleepSerializer(LogSerializer):

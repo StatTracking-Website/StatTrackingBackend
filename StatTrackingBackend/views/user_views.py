@@ -11,7 +11,7 @@ from StatTrackingBackend.email import send_confirm_email
 from StatTrackingBackend.filters import SpecificUsersFilter
 from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 from StatTrackingBackend.serializer.user_serializer import UserProfileSerializer, RegisterUserSerializer, \
-    UpdatePasswordSerializer, UserSerializer, ProfilePictureSerializer
+    UpdatePasswordSerializer, UserSerializer, ProfilePictureSerializer, find_user_from_identity
 from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView, generate_random_string, \
     check_required_keys
 
@@ -99,9 +99,8 @@ class ConfirmEmailView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        check_required_keys(request.data, ['code'])
-        # fix this
-        user: User = UserSerializer().to_internal_value(request.data)
+        check_required_keys(request.data, ['code', 'identity'])
+        user: User = find_user_from_identity(request.data['identity'])
         if user.verification.email_code != request.data["code"]:
             return Response({'detail': 'code not valid'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -114,8 +113,9 @@ class FinalizePasswordResetView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        check_required_keys(request.data, ['code', 'new_password'])
-        user: User = UserSerializer().to_internal_value(request.data)
+        check_required_keys(request.data, ['code', 'new_password', 'identity'
+                                           ])
+        user: User = find_user_from_identity(request.data['identity'])
         if user.verification.password_code != request.data["code"]:
             return Response({'detail': 'code not valid'}, status=status.HTTP_400_BAD_REQUEST)
 

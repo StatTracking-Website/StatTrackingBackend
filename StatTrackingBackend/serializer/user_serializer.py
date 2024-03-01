@@ -4,7 +4,7 @@ from rest_framework import serializers
 from StatTrackingBackend.models.user_models import User, UserProfile
 
 
-def _to_internal_value(data):
+def find_user_from_identity(data):
     if User.objects.filter(email=data).exists():
         return User.objects.get(email=data)
     elif User.objects.filter(user_name=data).exists():
@@ -17,14 +17,14 @@ def _to_internal_value(data):
 
 class UserIdentityField(serializers.Field):
     def to_representation(self, obj): return obj.user_name
-    def to_internal_value(self, data): return _to_internal_value(data)
+    def to_internal_value(self, data): return find_user_from_identity(data)
 
 
 class UserSlugIdentityField(serializers.RelatedField):
 
     def __init__(self, **kwargs): super().__init__(queryset=User.objects.all(), **kwargs)
     def to_representation(self, obj): return obj.user_name
-    def to_internal_value(self, data): return _to_internal_value(data)
+    def to_internal_value(self, data): return find_user_from_identity(data)
 
 
 class UserSerializer(serializers.ModelSerializer):

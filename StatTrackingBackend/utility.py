@@ -65,7 +65,7 @@ class SchwurbelSchema(AutoSchema):
 
 
 def generate_random_string(length: int, url_encodable: bool = True) -> str:
-    pool = string.printable if url_encodable else string.ascii_letters + string.digits
+    pool = string.ascii_letters + string.digits if url_encodable else string.printable
     return ''.join(random.choice(pool) for _ in range(length))
 
 

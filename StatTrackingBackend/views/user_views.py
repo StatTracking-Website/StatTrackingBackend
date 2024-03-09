@@ -128,6 +128,7 @@ class TokenVerifyView(APIView):
         return Response(
             {
                 'detail': 'token is working',
+                'uuid': request.user.uuid,
                 'user_name': request.user.user_name,
                 'email': request.user.email,
                 'access': request.user.access,

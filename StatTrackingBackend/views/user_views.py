@@ -11,7 +11,7 @@ from StatTrackingBackend.email import send_confirm_email
 from StatTrackingBackend.filters import SpecificUsersFilter
 from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 from StatTrackingBackend.serializer.user_serializer import UserProfileSerializer, RegisterUserSerializer, \
-    UpdatePasswordSerializer, UserSerializer, ProfilePictureSerializer, find_user_from_identity
+    UpdatePasswordSerializer, UserSerializer, find_user_from_identity
 from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView, generate_random_string, \
     check_required_keys
 
@@ -27,13 +27,8 @@ class ProfilePictureUploadView(APIView):
     parser_classes = (FileUploadParser,)
 
     def post(self, request, *args, **kwargs):
-        file_serializer = ProfilePictureSerializer(data=request.data)
-
-        if not file_serializer.is_valid():
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        file_serializer.save()
-        return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        request.data['user'] = request.user.profile.picture = request.data['file']
+        request.user.profile.save()
 
 
 class SetPasswordView(APIView):

@@ -7,11 +7,12 @@ from StatTrackingBackend.serializer.user_serializer import UserSlugIdentityField
 
 class FriendshipRequestSerializer(serializers.ModelSerializer):
 
-    def __init__(self, *args, **kwargs):
-        self.fields['user'].source = 'user_from' if kwargs.pop("incoming") else 'user_to'
-        super().__init__(*args, **kwargs)
-
     user = UserProfileSerializer(source='user_to')
+
+    def __init__(self, *args, **kwargs):
+        target = 'user_from' if kwargs.pop("incoming") else 'user_to'
+        self.fields['user'] = UserProfileSerializer(source=target)
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = FriendshipRequest

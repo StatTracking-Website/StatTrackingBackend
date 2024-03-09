@@ -56,10 +56,3 @@ class UpdatePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(max_length=50)
 
 
-class ProfilePictureSerializer(serializers.ModelSerializer):
-    user = UserSlugIdentityField()
-
-    class Meta:
-        model = UserProfile
-        fields = ['user', 'picture']
-

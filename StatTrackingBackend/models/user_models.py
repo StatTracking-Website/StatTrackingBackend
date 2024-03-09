@@ -1,9 +1,12 @@
+import os
 import uuid
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from multiselectfield import MultiSelectField
 from django_resized import ResizedImageField
+
+from StatTrackingBackend.utility import OverwriteStorage
 
 PUBLIC_ACCESS = (('Caffeine', 'Access Caffeine', 'Social'),
                  ('TooLate', 'Access Too Late', 'Social'),
@@ -84,9 +87,14 @@ class UserVerification(models.Model):
         return self.user.user_name
 
 
+def image_path(instance, filename):
+    ending = filename.split('.')[-1]
+    return 'profile_pictures/' + str(instance.user.uuid) + '.' + ending
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name="profile")
-    picture = ResizedImageField(size=[512, 512], upload_to='profile_pictures/', blank=True, null=True)
+    picture = ResizedImageField(size=[512, 512], storage=OverwriteStorage(), upload_to=image_path, blank=True, null=True)
     bio = models.CharField(max_length=256, blank=True, null=True)
 
     def __str__(self):

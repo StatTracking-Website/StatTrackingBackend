@@ -18,3 +18,4 @@ pyyaml==6.0.1
 uritemplate==4.1.1
 mailtrap==2.0.1
 django_resized==1.0.2
+drf-writable-nested==0.7.0

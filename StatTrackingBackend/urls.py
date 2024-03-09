@@ -13,7 +13,7 @@ from StatTrackingBackend.views.friendship_views import NewFriendshipRequestView,
 from StatTrackingBackend.views.log_views import CaffeineViewSet, TooLateViewSet, CaffeineTypeViewSet, \
     TooLateRatingViewSet, SleepViewSet, MoneyViewSet, MoneyUseCaseViewSet
 from StatTrackingBackend.views.user_views import UserViewSet, SetPasswordView, RegisterUserView, TokenVerifyView, \
-    ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView, ProfilePictureUploadView
+    ResetPasswordView, ConfirmEmailView, FinalizePasswordResetView, ProfilePictureUploadView, UserUpdateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -34,6 +34,7 @@ urlpatterns = [
     ), name='redoc-ui'),
 
     path('users/upload-profile-picture/', ProfilePictureUploadView.as_view(), name="upload_profile_picture"),
+    path('users/update/', UserUpdateView.as_view(), name="update_user"),
     path('users/set-password/', SetPasswordView.as_view(), name="set_password"),
     path('users/reset-password/', ResetPasswordView.as_view(), name="reset_password"),
     path('users/register-user/', RegisterUserView.as_view(), name="register_user"),

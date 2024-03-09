@@ -1,3 +1,4 @@
+from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
 
@@ -43,6 +44,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['identity', 'profile_picture', 'profile_bio']
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['bio']
+
+
+class UserUpdateSerializer(WritableNestedModelSerializer):
+    profile = UserProfileUpdateSerializer()
+
+    class Meta:
+        model = User
+        fields = ['user_name', 'profile']
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):

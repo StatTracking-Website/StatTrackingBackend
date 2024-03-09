@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
-from rest_framework.parsers import FileUploadParser
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +12,7 @@ from StatTrackingBackend.email import send_confirm_email
 from StatTrackingBackend.filters import SpecificUsersFilter
 from StatTrackingBackend.models.user_models import User, UserVerification, UserProfile
 from StatTrackingBackend.serializer.user_serializer import UserProfileSerializer, RegisterUserSerializer, \
-    UpdatePasswordSerializer, UserSerializer, find_user_from_identity
+    UpdatePasswordSerializer, UserSerializer, find_user_from_identity, UserUpdateSerializer
 from StatTrackingBackend.utility import SchwurbelSchema, LateThrottleAPIView, generate_random_string, \
     check_required_keys
 
@@ -23,12 +24,25 @@ class UserViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     serializer_class = UserProfileSerializer
 
 
+class UserUpdateView(GenericAPIView, UpdateModelMixin):
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserUpdateSerializer
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def get_object(self):
+        return self.request.user
+
+
 class ProfilePictureUploadView(APIView):
-    parser_classes = (FileUploadParser,)
+    parser_classes = (MultiPartParser,)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.profile.picture = request.data['file']
+        request.user.profile.picture = request.data['file']
         request.user.profile.save()
+        return Response(status=200, data={'detail': 'picture uploaded'})
 
 
 class SetPasswordView(APIView):

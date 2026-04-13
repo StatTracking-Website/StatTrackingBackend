@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-50g5#6cdl)n%(-s6b8q4z$=7zkk-=td3m+*h^zk&=1j7q1v@vg
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "api.stattracking.website",
+    "jesco.dev",
     "localhost",
     "127.0.0.1",
 ]
@@ -125,7 +125,7 @@ USE_TZ = True
 STATIC_ROOT = "export"
 STATIC_URL = 'static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "data", "media")
-MEDIA_URL = '/media/'
+MEDIA_URL = '/demo/stattracking-api/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -155,7 +155,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ["https://api.stattracking.website", "http://api.stattracking.website", "https://stattracking.website", "http://stattracking.website"]
+CSRF_TRUSTED_ORIGINS = ["https://jesco.dev", "http://jesco.dev"]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SIMPLE_JWT = {

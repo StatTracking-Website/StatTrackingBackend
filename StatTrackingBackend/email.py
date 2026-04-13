@@ -31,10 +31,10 @@ def send_generic_email(email_type: str, email: str, subject: str, variables: dic
 
 
 def send_confirm_email(email: str, user_name: str, confirm_code: str):
-    button_link = "https://stattracking.website/callback/confirm-email?email=" + email + "&verification=" + confirm_code
+    button_link = "https://demo.jesco.dev/stat-tracking/callback/confirm-email?email=" + email + "&verification=" + confirm_code
     send_generic_email("email_confirm", email, "Registration", {"user_name": user_name, "button_link": button_link})
 
 
 def send_password_reset_email(email: str, user_name: str, reset_code: str):
-    button_link = "https://stattracking.website/callback/reset-password?email=" + email + "&verification=" + reset_code
+    button_link = "https://demo.jesco.dev/stat-tracking/callback/reset-password?email=" + email + "&verification=" + reset_code
     send_generic_email("email_password", email, "Reset Password", {"user_name": user_name, "button_link": button_link})

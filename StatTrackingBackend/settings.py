@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "jesco.dev",
+    "demo.jesco.dev",
     "localhost",
     "127.0.0.1",
 ]
@@ -125,7 +126,7 @@ USE_TZ = True
 STATIC_ROOT = "export"
 STATIC_URL = 'static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "data", "media")
-MEDIA_URL = '/demo/stattracking-api/media/'
+MEDIA_URL = '/stat-tracking/api/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -155,7 +156,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ["https://jesco.dev", "http://jesco.dev"]
+CSRF_TRUSTED_ORIGINS = ["https://jesco.dev", "http://jesco.dev", "https://demo.jesco.dev"]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SIMPLE_JWT = {
